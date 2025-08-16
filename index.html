@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="style.css">
+	<title>提出課題</title>
+</head>
+<body>
+	<header id="top">
+		<h1>サーチ・ソート関数の使用例と自作サーチ関数の作成</h1>
+	</header>
+	<div class="container">
+	<main>
+		<section>
+			<h2 id="mokuji">目次 <span id="mokuji_span">&lt;hide&gt;<span></h2>
+			<ul>
+				<li id="list_one"><a href="#about_bsearch">バイナリサーチ関数</a></li>
+				<li id="list_two"><a href="#about_qsort">クイックソート関数</a></li>
+				<li id="list_three"><a href="#about_lsearch">リニアサーチ関数</a></li>
+			</ul>
+		</section>
+		<section>
+			<h2 id="about_bsearch">バイナリサーチ（二分探索）</h2>
+			<h3>説明</h3>
+			<div class="text">
+				<p>
+					データ構造から目的の値を見つけ出すサーチアルゴリズムです。<br>
+					但し、データは昇順または降順でソートされている必要があります。
+				</p>
+				<p>
+					中央要素の値と探索値を比較し、中央値が探索値よりも大きかったら中央値より前を探索し、<br>
+					中央値が探索値よりも小さかったら中央値より後を探索します。
+				</p>
+				<p>バイナリサーチを行うには、C言語標準ライブラリである bsearch 関数を使います。</p>
+			</div>
+			<h3>コード</h3>
+			<div class="code">
+			<pre>
+				<code>
+//***************************************************************************
+/// @param  _Key             探索値のポインタ
+/// @param  _Base            先頭要素のポインタ
+/// @param  _NumOfElms       要素数
+/// @param  _SizeOfElms      要素のサイズ
+/// @param  _CompareFunction 比較関数のポインタ
+/// @return void*            探索値と一致した要素のポインタ、
+///                          見つからなければ NULL
+//***************************************************************************
+/// void* bsearch(
+///	 const void* _Key       ,
+///	 const void* _Base      ,
+///	 size_t      _NumOfElms ,
+///	 size_t      _SizeOfElms,
+///	 int         (*_CompareFunction)(const void* _Key, const void* _Elm)
+/// );
+//***************************************************************************
+
+// ここから
+#include &lt;stdlib.h&gt; // bsearch
+#include &lt;stdio.h &gt;
+
+int CompareFunction(const void* _Key, const void* _Elm);
+
+int main()
+{
+	int    Key        = 90                                              ;
+	int    Base[]     = { 12, 67, 87, 90, 125, 153, 214, 234, 653, 804 };
+	size_t NumOfElms  = sizeof(Base   ) / sizeof(Base[0])               ;
+	size_t SizeOfElms = sizeof(Base[0])                                 ;
+
+	int* Result = (int*)bsearch(&Key, Base, NumOfElms, SizeOfElms, CompareFunction);
+
+	if   (Result) printf("Found: %d\n", *Result);
+	else          printf("Not found\n"         );
+
+	return 0;
+}
+
+int CompareFunction(const void* _Key, const void* _Elm)
+{
+	int* key = (int*)_Key;
+	int* elm = (int*)_Elm;
+
+	if      (*key > *elm) return  1;
+	else if (*key < *elm) return -1;
+	else                  return  0;
+}
+				</code>
+			</pre>
+			</div>
+		</section>
+		<section>
+			<h2 id="about_qsort">クイックソート</h2>
+			<h3>説明</h3>
+			<div class="text">
+				<p>データ構造中のデータを並べ替えるソートアルゴリズムです。</p>
+				<p>
+					ピボット（基準値）を決め、それより小さいグループと大きいグループに分割します。<br>
+					同じことを分割したそれぞれのグループでも行い、要素数が 1 になるまで繰り返します。
+				</p>
+				<p>クイックソートを行うには、C言語標準ライブラリである qsort 関数を使います。</p>
+			</div>
+			<h3>コード</h3>
+			<div class="code">
+			<pre>
+				<code>
+//***************************************************************************
+/// @param  _Base            先頭要素のポインタ
+/// @param  _NumOfElms       要素数
+/// @param  _SizeOfElms      要素のサイズ
+/// @param  _CompareFunction 比較関数のポインタ
+//***************************************************************************
+/// void qsort(
+///	 const void* _Base      ,
+///	 size_t      _NumOfElms ,
+///	 size_t      _SizeOfElms,
+///	 int         (*_CompareFunction)(const void* _Key, const void* _Elm)
+/// );
+//***************************************************************************
+
+// ここから
+#include &lt;stdlib.h&gt; // qsort
+#include &lt;stdio.h &gt;
+
+int CompareFunction(const void* _Key, const void* _Elm);
+
+int main()
+{
+	int    Base[]     = { 653, 67, 214, 87, 804, 125, 12, 153, 234, 90 };
+	size_t NumOfElms  = sizeof(Base   ) / sizeof(Base[0])               ;
+	size_t SizeOfElms = sizeof(Base[0])                                 ;
+
+	printf("--- Before ---\n");
+	for (int i = 0; i < NumOfElms; i++)
+		printf("%d, ", Base[i]);
+	printf("\n");
+
+	qsort(Base, NumOfElms, SizeOfElms, CompareFunction);
+
+	printf("--- After ---\n" );
+	for (int i = 0; i < NumOfElms; i++)
+		printf("%d, ", Base[i]);
+	printf("\n");
+
+	return 0;
+}
+
+int CompareFunction(const void* _Key, const void* _Elm)
+{
+	int* key = (int*)_Key;
+	int* elm = (int*)_Elm;
+
+	if      (*key > *elm) return  1;
+	else if (*key < *elm) return -1;
+	else                  return  0;
+}
+				</code>
+			</pre>
+			</div>
+		</section>
+		<section>
+			<h2 id="about_lsearch">リニアサーチ（線形探索）</h2>
+			<h3>説明</h3>
+			<div class="text">
+				<p>
+					データ構造から目的の値を見つけ出すサーチアルゴリズムです。<br>
+					バイナリサーチとは異なり、データはソートされている必要はありません。
+				</p>
+				<p>先頭要素から順番に探索し、探索値と一致または終端要素到達で終了します。</p>
+				<p>リニアサーチを行う MyLSearch 関数を作りました。</p>
+			</div>
+			<h3>コード</h3>
+			<div class="code">
+			<pre>
+				<code>
+//***************************************************************************
+/// @param  _Key             探索値のポインタ
+/// @param  _Base            先頭要素のポインタ
+/// @param  _NumOfElms       要素数
+/// @param  _SizeOfElms      要素のサイズ
+/// @param  _CompareFunction 比較関数のポインタ
+/// @return int              探索値と一致した要素のインデックス、
+///                          見つからなければ -1
+//***************************************************************************
+/// int MyLSearch(
+///	 const void* _Key       ,
+///	 const void* _Base      ,
+///	 size_t      _NumOfElms ,
+///	 size_t      _SizeOfElms,
+///	 int         (*_CompareFunction)(const void* _Key, const void* _Elm)
+/// );
+//***************************************************************************
+
+// ここから
+#include &lt;stdio.h &gt;
+
+int CompareFunction(const void* _Key, const void* _Elm);
+int MyLSearch(
+	const void* _Key      ,
+	const void* _Base     ,
+	size_t      NumOfElms ,
+	size_t      SizeOfElms,
+	int         (*_CompareFunction)(const void* _Key, const void* _Elm)
+);
+
+int main()
+{
+	int    Key        = 87                                              ;
+	int    Base[]     = { 653, 67, 214, 87, 804, 125, 12, 153, 234, 90 };
+	size_t NumOfElms  = sizeof(Base   ) / sizeof(Base[0])               ;
+	size_t SizeOfElms = sizeof(Base[0])                                 ;
+
+	int Result = MyLSearch(&Key, Base, NumOfElms, SizeOfElms, CompareFunction);
+
+	if (Result != -1)
+		printf("Found at: %d\n", Result);
+	else
+		printf("Not found\n"           );
+
+	return 0;
+}
+
+int CompareFunction(const void* _Key, const void* _Elm)
+{
+	int* key = (int*)_Key;
+	int* elm = (int*)_Elm;
+
+	if      (*key > *elm) return  1;
+	else if (*key < *elm) return -1;
+	else                  return  0;
+}
+
+int MyLSearch(
+	const void* _Key      ,
+	const void* _Base     ,
+	size_t      NumOfElms ,
+	size_t      SizeOfElms,
+	int         (*_CompareFunction)(const void* _Key, const void* _Elm)
+)
+{
+	for (int i = 0; i < NumOfElms; i++)
+		if (!_CompareFunction(_Key, (int*)_Base + i)) return i;
+
+	return -1;
+}
+				</code>
+			</pre>
+			</div>
+		</section>
+	</main>
+	</div>
+	<footer>
+		<p><a href="#top">トップ</a></p>
+	</footer>
+
+	<script src="script.js"></script>
+</body>
+</html>
